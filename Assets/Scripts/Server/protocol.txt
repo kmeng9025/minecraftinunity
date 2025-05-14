@@ -1,0 +1,36 @@
+Client to server:
+    case "cr": // Necessary??
+        Debug.Log("Chunk Request");
+        break;
+    case "cd":
+        Debug.Log("Camera Direction");
+        break;
+    case "cl":
+        Debug.Log("Click Registered");
+        break;
+    case "pl":
+        Debug.Log("Player Location");
+        break;
+    case "pp":
+        Debug.Log("Player Position");
+        break;
+    case "cw":
+        Debug.Log("Create World");
+        break;
+    case "lw":
+        Debug.Log("Load World");
+        break;
+    case "sw":
+        Debug.Log("Save World");
+        break;
+    case "cm":
+        Debug.Log("Command");
+        break;
+
+Server to client:
+    When creating world:
+        "cg" - chunk generated. 361 in total.
+        "wg" - world generated. Format "wg <world dir>"
+    "cd" - chunk data. Format "cd <chunkx> <chunky>;<blockx> <blocky> <blockz> <block>;<blockx> <blocky> <blockz> <block>@"
+    "ub" - update blocks. Format "ub <chunkx> <chunky> <block x> <block y> <block z> <block>@"
+    "mp" - mob position. Format "mp <mob ID> <chunkx> <chunky> <block>@"
