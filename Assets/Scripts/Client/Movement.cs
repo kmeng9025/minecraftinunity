@@ -234,7 +234,7 @@
 //                 {
 //                     try
 //                     {
-//                         if (Variables.ChunkData[new Tuple<int, int>(0, 0)][0][0][i] == null)
+//                         if (Variables.BlockData[new Tuple<int, int>(0, 0)][0][0][i] == null)
 //                         {
 //                             transform.position = new Vector3(0, i + 2.5f, 0);
 //                             break;
@@ -508,7 +508,7 @@ namespace Client
                 {
                     try
                     {
-                        if (Variables.ChunkData[new Tuple<int, int>(0, 0)][0][0][i] == null)
+                        if (Variables.BlockData[new Tuple<int, int>(0, 0)][0][0][i] == null)
                         {
                             transform.position = new Vector3(0, i - 95, 0);
                             controller.enabled = true;

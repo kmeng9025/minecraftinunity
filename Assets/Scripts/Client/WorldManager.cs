@@ -8,6 +8,7 @@ namespace Client
     {
         ConnectToHost connectToHost;
         static ArrayList scheduleBlocks = ArrayList.Synchronized(new ArrayList());
+        static ArrayList scheduleChunks = ArrayList.Synchronized(new ArrayList());
         public void Start()
         {
             Server.CreateHost.CreateNewHost(Application.persistentDataPath);
@@ -20,9 +21,13 @@ namespace Client
             connectToHost.StopClient();
         }
 
-        public static void ScheduleBlockCreation(string chunkX, string chunkY, string x, string y, string z, string blockType)
+        public static void ScheduleBlockCreation(string chunkX, string chunkY, string x, string y, string z, string blockType, string properties)
         {
-            scheduleBlocks.Add(new string[]{chunkX, chunkY, x, y, z, blockType});
+            scheduleBlocks.Add(new string[]{chunkX, chunkY, x, y, z, blockType, properties});
+        }
+
+        public static void ScheduleChunkCreation(string chunkX, string chunkY){
+            scheduleChunks.Add(new string[]{chunkX, chunkY});
         }
 
         public void Update()
@@ -40,17 +45,23 @@ namespace Client
                 int y = int.Parse(blockData[3]);
                 int z = int.Parse(blockData[4]);
                 string blockType = blockData[5];
+                string properties = blockData[6];
                 Tuple<int, int> key = new Tuple<int, int>(chunkX, chunkY);
-                GameObject[][][] test;
-                if(!Variables.ChunkData.TryGetValue(key, out test)){
-                    Debug.LogWarning("key not working");
-                }
-                Variables.ChunkData[key][x][y][z] = new GameObject();
-                Variables.ChunkData[key][x][y][z].AddComponent<Block>();
-                Variables.ChunkData[key][x][y][z].GetComponent<Block>().SetUp(chunkX, chunkY, x, y, z, blockType);
-                Variables.ChunkData[key][x][y][z].layer = LayerMask.NameToLayer("Blocks");
-                scheduleBlocks.RemoveAt(i);
+                Variables.BlockData[key][x][y][z] = new Block(chunkX, chunkY, x, y, blockType, properties);
+                scheduleBlocks.RemoveAt(0);
                 i--;
+            }
+            for(int i = 0; i < scheduleChunks.Count; i++)
+            {
+                string[] chunkData = scheduleChunks[i] as string[];
+                int chunkX = int.Parse(chunkData[0]);
+                int chunkY = int.Parse(chunkData[1]);
+                Tuple<int, int> key = new Tuple<int, int>(chunkX, chunkY);
+                Variables.ChunkData[key] = new GameObject();
+                Variables.ChunkData[key].AddComponent<Chunk>();
+                Variables.ChunkData[key].GetComponent<Chunk>().SetUp(chunkX, chunkY);
+                scheduleChunks.RemoveAt(0);
+                i --;
             }
         }
     }

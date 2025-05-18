@@ -68,6 +68,7 @@ namespace Server
                     
                 }
             }
+            // results += ";" + 0 + " " + 0 + " " + 0 + " gr";
             byte[] info = new UTF8Encoding(true).GetBytes(results);
             fs.Write(info, 0, info.Length);
             connectToClient.SendMessageToClient(results);
@@ -94,6 +95,7 @@ namespace Server
                     connectToClient.SendMessageToClient("cg");
                 }
             }
+            // generateNewChunks(0, 0);
             connectToClient.SendMessageToClient("wg");
         }
 

@@ -74,7 +74,8 @@ namespace Client
                         Debug.Log("Kick");
                         break;
                     case "cg":
-                        Debug.Log("Chunk Generated On Server");
+                        BlockManager.LoadChunks("cg");
+                        // Debug.Log("Chunk Generated On Server");
                         break;
                     case "wg":
                         BlockManager.LoadChunks("wg");
