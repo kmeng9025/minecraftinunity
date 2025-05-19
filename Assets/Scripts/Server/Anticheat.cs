@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Server{
     public class Anticheat
     {
@@ -22,18 +24,16 @@ namespace Server{
         }
         public void addPlayer(string playerName)
         {
-            Variables.playerX.Add(Variables.worldSpawn[0]);
-            Variables.playerY.Add(Variables.worldSpawn[1]);
-            Variables.playerZ.Add(Variables.worldSpawn[2]);
-            Variables.playerName.Add(playerName);
+            while(!Variables.playerData.TryAdd(playerName, new float[3]));
+            Variables.playerData[playerName] = Variables.worldSpawn;
         }
 
         public void checkMovement(string playerName, float x, float y, float z)
         {
-            int index = Variables.playerName.FindIndex(x => x == playerName);
-            Variables.playerX[index] = x;
-            Variables.playerY[index] = y;
-            Variables.playerZ[index] = z;
+            float[] playerData = Variables.playerData[playerName];
+            if(playerData == null){
+                addPlayer(playerName);
+            }
         }
     }
 }

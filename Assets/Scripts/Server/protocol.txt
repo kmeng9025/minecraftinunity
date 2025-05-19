@@ -28,6 +28,8 @@ Client to server:
         break;
     Every message will have this:
         "pp <playerx> <playery> <playerz>%<player camera forward x> <player camera forward y> <player camera forward z><hitting ? 1 : 0>%<hitting ? 1 : 0>@"
+    Every start will have this:
+        "pn <player name>"
 
 Server to client:
     When creating world:

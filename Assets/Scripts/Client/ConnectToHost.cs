@@ -30,6 +30,7 @@ namespace Client
                 Debug.Log("Connected to server");
                 Thread listenerThread = new Thread(new ThreadStart(ListenToData));
                 listenerThread.Start();
+                SendMessageToHost("pn Hello");
                 SendMessageToHost("cw 12455879");
             } catch (Exception e){
                 Debug.Log("Error at client- " + e.ToString());

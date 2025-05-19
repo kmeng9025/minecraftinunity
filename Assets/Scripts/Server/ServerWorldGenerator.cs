@@ -71,6 +71,7 @@ namespace Server
             // results += ";" + 0 + " " + 0 + " " + 0 + " gr";
             byte[] info = new UTF8Encoding(true).GetBytes(results);
             fs.Write(info, 0, info.Length);
+            fs.Flush();
             connectToClient.SendMessageToClient(results);
         }
         public void loadChunks(int chunkX, int chunkY) { }

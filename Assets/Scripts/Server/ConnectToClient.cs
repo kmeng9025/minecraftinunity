@@ -5,6 +5,7 @@ using System.Threading;
 using System.Text;
 using System;
 using System.Runtime.CompilerServices;
+using UnityEditor.PackageManager;
 namespace Server
 {
     public class ConnectToClient
@@ -61,12 +62,15 @@ namespace Server
         }
         private void ReceivedMessage(string message)
         {
-            String[] messages = message.Split('@');
+            string[] messages = message.Split('@');
             for (int i = 0; i < messages.Length; i++)
             {
-                String messageHeader = messages[i].Substring(0, 2);
+                string messageHeader = messages[i].Substring(0, 2);
                 switch (messageHeader)
                 {
+                    case "pp":
+                        Debug.Log("Player Position: " + messages[i].Substring(2));
+                        break;
                     case "cd":
                         Debug.Log("Camera Direction");
                         break;
@@ -75,9 +79,6 @@ namespace Server
                         break;
                     case "pl":
                         Debug.Log("Player Location");
-                        break;
-                    case "pp":
-                        Debug.Log("Player Position");
                         break;
                     case "cw":
                         Variables.serverGenerator = new ServerGenerator(long.Parse(messages[i].Substring(3)));
