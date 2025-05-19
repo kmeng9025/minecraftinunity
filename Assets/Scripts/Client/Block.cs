@@ -6,15 +6,18 @@ namespace Client{
         int chunkY;
         int x;
         int y;
-        string type;
         string properties;
-        
-        public Block(int chunkX, int chunkY, int x, int y, string type, string properties){
+        BlockType blockType;
+        public Block(int chunkX, int chunkY, int x, int y, BlockType blockType, string properties){
             this.chunkX = chunkX;
             this.chunkY = chunkY;
             this.x = x;
             this.y = y;
-            this.type = type;
+            this.blockType = blockType;
+        }
+
+        public BlockType GetBlockType(){
+            return blockType;
         }
     }
 }

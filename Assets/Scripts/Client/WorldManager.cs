@@ -9,6 +9,7 @@ namespace Client
         ConnectToHost connectToHost;
         static ArrayList scheduleBlocks = ArrayList.Synchronized(new ArrayList());
         static ArrayList scheduleChunks = ArrayList.Synchronized(new ArrayList());
+        
         public void Start()
         {
             Server.CreateHost.CreateNewHost(Application.persistentDataPath);
@@ -44,7 +45,12 @@ namespace Client
                 int x = int.Parse(blockData[2]);
                 int y = int.Parse(blockData[3]);
                 int z = int.Parse(blockData[4]);
-                string blockType = blockData[5];
+                BlockType blockType = blockData[5] switch{
+                    "st" => BlockType.Stone,
+                    "gr" => BlockType.Grass,
+                    "dr" => BlockType.Dirt,
+                    _ => BlockType.None
+                };
                 string properties = blockData[6];
                 Tuple<int, int> key = new Tuple<int, int>(chunkX, chunkY);
                 Variables.BlockData[key][x][y][z] = new Block(chunkX, chunkY, x, y, blockType, properties);

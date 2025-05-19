@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Client
@@ -13,14 +14,17 @@ namespace Client
         List<int> tri;
         List<Vector3> vert;
         List<Vector2> uvlist;
+        bool meshReady = false;
         public void Start()
         {
             gameObject.AddComponent<MeshFilter>();
             gameObject.AddComponent<MeshRenderer>();
+            gameObject.AddComponent<MeshCollider>();
             meshUpdated = false;
-            vert = new List<Vector3>();
-            uvlist = new List<Vector2>();
-            tri = new List<int>();
+        }
+
+        public bool MeshReady(){
+            return meshReady;
         }
 
         public void SetUp(int chunkX, int chunkY)
@@ -28,7 +32,7 @@ namespace Client
             this.chunkX = chunkX;
             this.chunkY = chunkY;
             gameObject.name = "Chunk " + chunkX + " " + chunkY;
-            gameObject.transform.position = new Vector3(chunkX * 16, 0, chunkY * 16);
+            gameObject.transform.position = new Vector3(chunkX * 16, -100, chunkY * 16);
         }
 
         public void Update()
@@ -58,8 +62,17 @@ namespace Client
             for (int i = 0; i < 4; i++) uvlist.Add(Variables.UVs[blockType][blockFace][i]);
         }
 
+        private void AddT(BlockType blockType, BlockFace blockFace, int x, int y, int z){
+            AddTri();
+            AddUvs(blockType, blockFace);
+            AddVert(blockFace, x, y, z);
+        }
+
         public void updateMesh()
         {
+            vert = new List<Vector3>();
+            uvlist = new List<Vector2>();
+            tri = new List<int>();
             Tuple<int, int> key = new Tuple<int, int>(chunkX, chunkY);
             for (int x = 0; x < 16; x++)
             {
@@ -68,81 +81,38 @@ namespace Client
                     for (int z = 0; z < 200; z++)
                     {
                         if (Variables.BlockData[key][x][y][z] == null) continue;
-                        // Debug.LogError("RUNNING block");
+                        Block currentBlock = Variables.BlockData[key][x][y][z];
                         try
                         {
                             if (Variables.BlockData[key][x][y][z + 1] == null)
                             {
-                                AddTri();
-                                AddUvs()
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y + 0.5f)); // 16
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y + 0.5f)); // 17
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y - 0.5f)); // 18
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y - 0.5f)); // 19
+                                AddT(currentBlock.GetBlockType(), BlockFace.Top, x, y, z);
                             }
                         }
                         catch (Exception)
                         {
-                            int count = vert.Count;
-                            tri.Add(count);
-                            tri.Add(count + 1);
-                            tri.Add(count + 2);
-                            tri.Add(count);
-                            tri.Add(count + 2);
-                            tri.Add(count + 3);
-                            
-                            vert.Add(new Vector3(x - 0.5f, z + 0.5f, y + 0.5f)); // 16
-                            vert.Add(new Vector3(x + 0.5f, z + 0.5f, y + 0.5f)); // 17
-                            vert.Add(new Vector3(x + 0.5f, z + 0.5f, y - 0.5f)); // 18
-                            vert.Add(new Vector3(x - 0.5f, z + 0.5f, y - 0.5f)); // 19
+                            AddT(currentBlock.GetBlockType(), BlockFace.Top, x, y, z);
                         }
+
+
                         try
                         {
                             if (Variables.BlockData[key][x][y][z - 1] == null)
                             {
-                                int count = vert.Count;
-                                tri.Add(count);
-                                tri.Add(count + 1);
-                                tri.Add(count + 2);
-                                tri.Add(count);
-                                tri.Add(count + 2);
-                                tri.Add(count + 3);
-                                
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, -0.5f));
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, -0.5f));
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, 0.5f));
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, 0.5f));
+                                AddT(currentBlock.GetBlockType(), BlockFace.Bottom, x, y, z);
                             }
                         }
                         catch (Exception)
                         {
-                            int count = vert.Count;
-                            
-                            uvlist.Add(new Vector2(0.0f, 0.0f));
-                            uvlist.Add(new Vector2(0.5f, 0.0f));
-                            uvlist.Add(new Vector2(0.5f, 0.5f));
-                            uvlist.Add(new Vector2(0.0f, 0.5f));
-                            vert.Add(new Vector3(x - 0.5f, z - 0.5f, -0.5f));
-                            vert.Add(new Vector3(x + 0.5f, z - 0.5f, -0.5f));
-                            vert.Add(new Vector3(x + 0.5f, z - 0.5f, 0.5f));
-                            vert.Add(new Vector3(x - 0.5f, z - 0.5f, 0.5f));
+                                AddT(currentBlock.GetBlockType(), BlockFace.Bottom, x, y, z);
                         }
+
+
                         try
                         {
                             if (Variables.BlockData[key][x + 1][y][z] == null)
                             {
-                                int count = vert.Count;
-                                tri.Add(count);
-                                tri.Add(count + 1);
-                                tri.Add(count + 2);
-                                tri.Add(count);
-                                tri.Add(count + 2);
-                                tri.Add(count + 3);
-                                
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, y + 0.5f)); // 12
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, y - 0.5f)); // 13
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y - 0.5f)); // 14
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y + 0.5f)); // 15
+                                AddT(currentBlock.GetBlockType(), BlockFace.Right, x, y, z);
                             }
                         }
                         catch (Exception)
@@ -151,62 +121,21 @@ namespace Client
                             {
                                 if (Variables.BlockData[new Tuple<int, int>(chunkX + 1, chunkY)][0][y][z] == null)
                                 {
-                                    int count = vert.Count;
-                                    tri.Add(count);
-                                    tri.Add(count + 1);
-                                    tri.Add(count + 2);
-                                    tri.Add(count);
-                                    tri.Add(count + 2);
-                                    tri.Add(count + 3);
-                                    uvlist.Add(new Vector2(0.5f, 0.5f));
-                                    uvlist.Add(new Vector2(1.0f, 0.5f));
-                                    uvlist.Add(new Vector2(1.0f, 1.0f));
-                                    uvlist.Add(new Vector2(0.5f, 1.0f));
-                                    vert.Add(new Vector3(x + 0.5f, z - 0.5f, y + 0.5f)); // 12
-                                    vert.Add(new Vector3(x + 0.5f, z - 0.5f, y - 0.5f)); // 13
-                                    vert.Add(new Vector3(x + 0.5f, z + 0.5f, y - 0.5f)); // 14
-                                    vert.Add(new Vector3(x + 0.5f, z + 0.5f, y + 0.5f)); // 15
+                                    AddT(currentBlock.GetBlockType(), BlockFace.Right, x, y, z);
                                 }
                             }
                             catch (Exception)
                             {
-                                int count = vert.Count;
-                                tri.Add(count);
-                                tri.Add(count + 1);
-                                tri.Add(count + 2);
-                                tri.Add(count);
-                                tri.Add(count + 2);
-                                tri.Add(count + 3);
-                                uvlist.Add(new Vector2(0.5f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 1.0f));
-                                uvlist.Add(new Vector2(0.5f, 1.0f));
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, y + 0.5f)); // 12
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, y - 0.5f)); // 13
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y - 0.5f)); // 14
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y + 0.5f)); // 15
+                                AddT(currentBlock.GetBlockType(), BlockFace.Right, x, y, z);
                             }
                         }
+
 
                         try
                         {
                             if (Variables.BlockData[key][x - 1][y][z] == null)
                             {
-                                int count = vert.Count;
-                                tri.Add(count);
-                                tri.Add(count + 1);
-                                tri.Add(count + 2);
-                                tri.Add(count);
-                                tri.Add(count + 2);
-                                tri.Add(count + 3);
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, y - 0.5f)); // 8
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, y + 0.5f)); // 9
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y + 0.5f)); // 10
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y - 0.5f)); // 11
-                                uvlist.Add(new Vector2(0.5f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 1.0f));
-                                uvlist.Add(new Vector2(0.5f, 1.0f));
+                                AddT(currentBlock.GetBlockType(), BlockFace.Left, x, y, z);
                             }
                         }
                         catch (Exception)
@@ -215,126 +144,21 @@ namespace Client
                             {
                                 if (Variables.BlockData[new Tuple<int, int>(chunkX - 1, chunkY)][15][y][z] == null)
                                 {
-                                    int count = vert.Count;
-                                    tri.Add(count);
-                                    tri.Add(count + 1);
-                                    tri.Add(count + 2);
-                                    tri.Add(count);
-                                    tri.Add(count + 2);
-                                    tri.Add(count + 3);
-                                    vert.Add(new Vector3(x - 0.5f, z - 0.5f, y - 0.5f)); // 8
-                                    vert.Add(new Vector3(x - 0.5f, z - 0.5f, y + 0.5f)); // 9
-                                    vert.Add(new Vector3(x - 0.5f, z + 0.5f, y + 0.5f)); // 10
-                                    vert.Add(new Vector3(x - 0.5f, z + 0.5f, y - 0.5f)); // 11
-                                    uvlist.Add(new Vector2(0.5f, 0.5f));
-                                    uvlist.Add(new Vector2(1.0f, 0.5f));
-                                    uvlist.Add(new Vector2(1.0f, 1.0f));
-                                    uvlist.Add(new Vector2(0.5f, 1.0f));
+                                    AddT(currentBlock.GetBlockType(), BlockFace.Left, x, y, z);
                                 }
                             }
                             catch (Exception)
                             {
-                                int count = vert.Count;
-                                tri.Add(count);
-                                tri.Add(count + 1);
-                                tri.Add(count + 2);
-                                tri.Add(count);
-                                tri.Add(count + 2);
-                                tri.Add(count + 3);
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, y - 0.5f)); // 8
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, y + 0.5f)); // 9
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y + 0.5f)); // 10
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y - 0.5f)); // 11
-                                uvlist.Add(new Vector2(0.5f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 1.0f));
-                                uvlist.Add(new Vector2(0.5f, 1.0f));
+                                AddT(currentBlock.GetBlockType(), BlockFace.Left, x, y, z);
                             }
                         }
 
-                        try
-                        {
-                            if (Variables.BlockData[key][x][y - 1][z] == null)
-                            {
-                                int count = vert.Count;
-                                tri.Add(count);
-                                tri.Add(count + 1);
-                                tri.Add(count + 2);
-                                tri.Add(count);
-                                tri.Add(count + 2);
-                                tri.Add(count + 3);
-                                uvlist.Add(new Vector2(0.5f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 1.0f));
-                                uvlist.Add(new Vector2(0.5f, 1.0f));
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, y - 0.5f)); // 4
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, y - 0.5f)); // 5
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y - 0.5f)); // 6
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y - 0.5f)); // 7
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            try
-                            {
-                                if (Variables.BlockData[new Tuple<int, int>(chunkX, chunkY - 1)][x][15][z] == null)
-                                {
-                                    int count = vert.Count;
-                                    tri.Add(count);
-                                    tri.Add(count + 1);
-                                    tri.Add(count + 2);
-                                    tri.Add(count);
-                                    tri.Add(count + 2);
-                                    tri.Add(count + 3);
-                                    uvlist.Add(new Vector2(0.5f, 0.5f));
-                                    uvlist.Add(new Vector2(1.0f, 0.5f));
-                                    uvlist.Add(new Vector2(1.0f, 1.0f));
-                                    uvlist.Add(new Vector2(0.5f, 1.0f));
-                                    vert.Add(new Vector3(x + 0.5f, z - 0.5f, y - 0.5f)); // 4
-                                    vert.Add(new Vector3(x - 0.5f, z - 0.5f, y - 0.5f)); // 5
-                                    vert.Add(new Vector3(x - 0.5f, z + 0.5f, y - 0.5f)); // 6
-                                    vert.Add(new Vector3(x + 0.5f, z + 0.5f, y - 0.5f)); // 7
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                int count = vert.Count;
-                                tri.Add(count);
-                                tri.Add(count + 1);
-                                tri.Add(count + 2);
-                                tri.Add(count);
-                                tri.Add(count + 2);
-                                tri.Add(count + 3);
-                                uvlist.Add(new Vector2(0.5f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 1.0f));
-                                uvlist.Add(new Vector2(0.5f, 1.0f));
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, y - 0.5f)); // 4
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, y - 0.5f)); // 5
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y - 0.5f)); // 6
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y - 0.5f)); // 7
-                            }
-                        }
+
                         try
                         {
                             if (Variables.BlockData[key][x][y + 1][z] == null)
                             {
-                                int count = vert.Count;
-                                tri.Add(count);
-                                tri.Add(count + 1);
-                                tri.Add(count + 2);
-                                tri.Add(count);
-                                tri.Add(count + 2);
-                                tri.Add(count + 3);
-                                uvlist.Add(new Vector2(0.5f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 1.0f));
-                                uvlist.Add(new Vector2(0.5f, 1.0f));
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, y + 0.5f)); // 0
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, y + 0.5f)); // 1
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y + 0.5f)); // 2
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y + 0.5f)); // 3
-
+                                AddT(currentBlock.GetBlockType(), BlockFace.Front, x, y, z);
                             }
                         }
                         catch (Exception)
@@ -343,40 +167,34 @@ namespace Client
                             {
                                 if (Variables.BlockData[new Tuple<int, int>(chunkX, chunkY + 1)][x][0][z] == null)
                                 {
-                                    int count = vert.Count;
-                                    tri.Add(count);
-                                    tri.Add(count + 1);
-                                    tri.Add(count + 2);
-                                    tri.Add(count);
-                                    tri.Add(count + 2);
-                                    tri.Add(count + 3);
-                                    uvlist.Add(new Vector2(0.5f, 0.5f));
-                                    uvlist.Add(new Vector2(1.0f, 0.5f));
-                                    uvlist.Add(new Vector2(1.0f, 1.0f));
-                                    uvlist.Add(new Vector2(0.5f, 1.0f));
-                                    vert.Add(new Vector3(x - 0.5f, z - 0.5f, y + 0.5f)); // 0
-                                    vert.Add(new Vector3(x + 0.5f, z - 0.5f, y + 0.5f)); // 1
-                                    vert.Add(new Vector3(x + 0.5f, z + 0.5f, y + 0.5f)); // 2
-                                    vert.Add(new Vector3(x - 0.5f, z + 0.5f, y + 0.5f)); // 3
+                                    AddT(currentBlock.GetBlockType(), BlockFace.Front, x, y, z);
                                 }
                             }
                             catch (Exception)
                             {
-                                int count = vert.Count;
-                                tri.Add(count);
-                                tri.Add(count + 1);
-                                tri.Add(count + 2);
-                                tri.Add(count);
-                                tri.Add(count + 2);
-                                tri.Add(count + 3);
-                                uvlist.Add(new Vector2(0.5f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 0.5f));
-                                uvlist.Add(new Vector2(1.0f, 1.0f));
-                                uvlist.Add(new Vector2(0.5f, 1.0f));
-                                vert.Add(new Vector3(x - 0.5f, z - 0.5f, y + 0.5f)); // 0
-                                vert.Add(new Vector3(x + 0.5f, z - 0.5f, y + 0.5f)); // 1
-                                vert.Add(new Vector3(x + 0.5f, z + 0.5f, y + 0.5f)); // 2
-                                vert.Add(new Vector3(x - 0.5f, z + 0.5f, y + 0.5f)); // 3
+                                AddT(currentBlock.GetBlockType(), BlockFace.Front, x, y, z);
+                            }
+                        }
+
+                        try
+                        {
+                            if (Variables.BlockData[key][x][y - 1][z] == null)
+                            {
+                                AddT(currentBlock.GetBlockType(), BlockFace.Back, x, y, z);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            try
+                            {
+                                if (Variables.BlockData[new Tuple<int, int>(chunkX, chunkY - 1)][x][15][z] == null)
+                                {
+                                    AddT(currentBlock.GetBlockType(), BlockFace.Back, x, y, z);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                AddT(currentBlock.GetBlockType(), BlockFace.Back, x, y, z);
                             }
                         }
                     }
@@ -388,6 +206,7 @@ namespace Client
             Vector2[] uv = uvlist.ToArray();
             MeshFilter mf = GetComponent<MeshFilter>();
             MeshRenderer mr = GetComponent<MeshRenderer>();
+            MeshCollider mc = GetComponent<MeshCollider>();
             if (textureAtlas == null)
             {
                 Debug.LogError("Texture atlas not found! Make sure it's in Resources and named correctly.");
@@ -395,6 +214,7 @@ namespace Client
             Mesh mesh = new Mesh();
             mesh.vertices = vertices;
             mesh.triangles = triangles;
+            mc.sharedMesh = mesh;
             mesh.uv = uv;
             mesh.RecalculateNormals();
             // Apply material
@@ -405,6 +225,7 @@ namespace Client
             mr.material = mat;
             mf.mesh = mesh;
             meshUpdated = true;
+            meshReady = true;
         }
     }
 }

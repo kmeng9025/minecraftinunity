@@ -129,6 +129,7 @@ namespace Client
 
     public enum BlockType
     {
+        None,
         Grass,
         Dirt,
         Stone,
