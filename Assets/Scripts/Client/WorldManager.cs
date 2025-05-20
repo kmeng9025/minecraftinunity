@@ -38,7 +38,7 @@ namespace Client
                 string[] blockData = scheduleBlocks[i] as string[];
                 if(blockData[0].Equals("wg")){
                     Variables.worldGenerated = true;
-                    Variables.BlockData[new Tuple<int, int>(0, 0)][0][0][100] = new Block(BlockType.Grass);
+                    // Variables.BlockData[new Tuple<int, int>(0, 0)][0][0][100] = new Block(BlockType.Grass);
                     // Variables.ChunkData[new Tuple<int, int>(0, 0)].GetComponent<Chunk>().updateMesh();
                     continue;
                 }
