@@ -15,6 +15,7 @@ namespace Server
         TcpClient client;
         NetworkStream stream;
         Thread thread;
+        Anticheat antiCheat;
         public ConnectToClient()
         {
             thread = new Thread(new ThreadStart(SetupServer));
@@ -22,6 +23,7 @@ namespace Server
         }
         private void SetupServer()
         {
+            antiCheat = Anticheat.getInstance();
             while (true)
             {
                 try
@@ -69,7 +71,10 @@ namespace Server
                 switch (messageHeader)
                 {
                     case "pp":
-                        Debug.Log("Player Position: " + messages[i].Substring(2));
+                        antiCheat.gotData(messages[i].Substring(2));
+                        break;
+                    case "pn":
+                        Debug.Log("Player Name: " + messages[i].Substring(2));
                         break;
                     case "cd":
                         Debug.Log("Camera Direction");

@@ -16,6 +16,10 @@ namespace Client{
             this.blockType = blockType;
         }
 
+        public Block(BlockType blockType){
+            this.blockType = blockType;
+        }
+
         public BlockType GetBlockType(){
             return blockType;
         }

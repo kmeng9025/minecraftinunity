@@ -1,4 +1,4 @@
-namespace Player{
+namespace Server{
     public class Player{
         string playerName;
         float x;

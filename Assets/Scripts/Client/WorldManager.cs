@@ -38,6 +38,8 @@ namespace Client
                 string[] blockData = scheduleBlocks[i] as string[];
                 if(blockData[0].Equals("wg")){
                     Variables.worldGenerated = true;
+                    Variables.BlockData[new Tuple<int, int>(0, 0)][0][0][100] = new Block(BlockType.Grass);
+                    // Variables.ChunkData[new Tuple<int, int>(0, 0)].GetComponent<Chunk>().updateMesh();
                     continue;
                 }
                 int chunkX = int.Parse(blockData[0]);
@@ -65,6 +67,7 @@ namespace Client
                 Tuple<int, int> key = new Tuple<int, int>(chunkX, chunkY);
                 Variables.ChunkData[key] = new GameObject();
                 Variables.ChunkData[key].AddComponent<Chunk>();
+                Variables.ChunkData[key].layer = LayerMask.NameToLayer("Chunk");
                 Variables.ChunkData[key].GetComponent<Chunk>().SetUp(chunkX, chunkY);
                 scheduleChunks.RemoveAt(0);
                 i --;

@@ -19,9 +19,9 @@ public class CommsManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Variables.worldGenerated){
-            Comms();
-        }
+        // if(Variables.worldGenerated){
+        //     Comms();
+        // }
     }
 
     void scheduleMessage(string message){

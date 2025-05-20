@@ -31,6 +31,8 @@ namespace Client
         bool lastJump;
         bool hitting;
         bool interacting;
+        GameObject head;
+        [SerializeField] private LayerMask chunkLayer;
 
         void Start()
         {
@@ -50,6 +52,7 @@ namespace Client
             transform.Find("Visual").transform.Find("Left Arm").transform.GetComponent<MeshRenderer>().enabled = false;
             transform.Find("Visual").transform.Find("Right Arm").transform.GetComponent<MeshRenderer>().enabled = false;
             transform.Find("Visual").transform.Find("Head").transform.GetComponent<MeshRenderer>().enabled = false;
+            head = transform.Find("Visual").transform.Find("Head").gameObject;
         }
 
         void Update()
@@ -158,7 +161,7 @@ namespace Client
 
             // Update and clamp pitch
             cameraPitch -= mouseY;
-            cameraPitch = Mathf.Clamp(cameraPitch, -80f, 80f);
+            cameraPitch = Mathf.Clamp(cameraPitch, -90f, 90f);
 
             // Apply pitch to camera only
             cam.localRotation = Quaternion.Euler(0f, 0f, -cameraPitch);
@@ -170,8 +173,10 @@ namespace Client
         }
         public void OnHit(InputValue inputValue)
         {
+
             if (inputValue.isPressed)
             {
+
                 hitting = true;
             } else {
                 hitting = false;
@@ -182,6 +187,34 @@ namespace Client
             if (inputValue.isPressed)
             {
                 interacting = true;
+                RaycastHit hit;
+                if(Physics.Raycast(cam.position, cam.right, out hit, 10f, chunkLayer))
+                {
+
+                    Vector3 hitPoint = hit.point;
+                    
+                    if(Mathf.Approximately((float) (Math.Abs(hitPoint.y) - Math.Abs(Math.Truncate(hitPoint.y))), 0.5f)){
+                        float rawX = hitPoint.x + 0.5f;
+                        float rawZ = hitPoint.z + 0.5f;
+                        float rawY = hitPoint.y;
+                        int chunkX = (int)Math.Floor((hitPoint.x + 0.5f) / 16f);
+                        int chunkZ = (int)Math.Floor((hitPoint.z + 0.5f) / 16f);
+                        int blockX = (int)Math.Round(hitPoint.x % 16);
+                        int blockZ = (int)Math.Round(hitPoint.z % 16);
+                        blockZ = blockZ < 0 ? blockZ + 16 : blockZ;
+                        blockX = blockX < 0 ? blockX + 16 : blockX;
+                        int blockY = (int)Math.Floor(hitPoint.y) + 101;
+
+                        print(chunkX + " " + chunkZ + " " + blockX + " " + blockZ + " " + blockY + "% " + rawX + " " + rawZ + " " + rawY);
+                        Vector3 comparable = new Vector3((float)Math.Floor(transform.position.x), (float)Math.Floor(transform.position.y), (float)Math.Floor(transform.position.z));
+                        if(comparable != new Vector3(chunkX * 16 + blockX, blockY-101, chunkZ * 16 + blockZ)){
+                            Variables.BlockData[new Tuple<int, int>(chunkX, chunkZ)][blockX][blockZ][blockY] = new Block(BlockType.Grass);
+                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        }
+                    } else {
+                        print(hitPoint.y);
+                    }
+                }
             } else {
                 interacting = false;
             }
@@ -197,24 +230,39 @@ namespace Client
                 jumpTimeout = 0f;
             }
         }
+
+        void OnCrouch(InputValue inputValue)
+        {
+            if (inputValue.isPressed)
+            {
+                ySpeedModifier = 0.25f;
+                xSpeedModifier = 0.25f;
+            }
+            else
+            {
+                ySpeedModifier = 1f;
+                xSpeedModifier = 1f;
+            }
+            
+        }
         void SetUpPlayerInitialPosition()
         {
             if (Variables.worldGenerated && first)
             {
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i < 200; i++)
                 {
                     try
                     {
                         if (Variables.BlockData[new Tuple<int, int>(0, 0)][0][0][i] == null)
                         {
-                            transform.position = new Vector3(0, i - 97, 0);
+                            transform.position = new Vector3(0, i - 95, 0);
                             controller.enabled = true;
                             break;
                         }
                     }
                     catch (Exception)
                     {
-                        transform.position = new Vector3(0, i - 97, 0);
+                        transform.position = new Vector3(0, i - 95, 0);
                         controller.enabled = true;
                         break;
                     }
