@@ -69,6 +69,7 @@ namespace Client
                 HandleMovement();
                 doPlace();
                 doBreak();
+                TryVoid();
             }
         }
         
@@ -302,6 +303,12 @@ namespace Client
                         // }
                     }
                 }
+            }
+        }
+        void TryVoid(){
+            if(transform.position.y < -120){
+                first = true;
+                SetUpPlayerInitialPosition();
             }
         }
 

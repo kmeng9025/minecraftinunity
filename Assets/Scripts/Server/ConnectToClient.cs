@@ -5,7 +5,6 @@ using System.Threading;
 using System.Text;
 using System;
 using System.Runtime.CompilerServices;
-using UnityEditor.PackageManager;
 namespace Server
 {
     public class ConnectToClient

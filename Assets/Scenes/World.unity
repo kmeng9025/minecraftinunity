@@ -260,6 +260,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1826fe5e7166ed4f9397df937ac0bbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chunkLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!4 &317443771
 Transform:
   m_ObjectHideFlags: 0
