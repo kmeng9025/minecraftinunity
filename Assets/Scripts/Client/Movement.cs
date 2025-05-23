@@ -151,7 +151,7 @@ namespace Client
         {
             if (inputValue.isPressed){
                 sprinting = true;
-                forwardSpeedModifier = 5f;
+                forwardSpeedModifier = 1.3f;
             }
             else{
                 sprinting = false;
@@ -212,12 +212,18 @@ namespace Client
                         placeTimeout -= Time.deltaTime;
                         return;
                     } else {
-                        placeTimeout = 0.05f;
+                        placeTimeout = 0.3f;
                     }
 
                     Vector3 hitPoint = hit.point;
                     
                     if(Math.Abs(hitPoint.y - Math.Truncate(hitPoint.y)) == 0.5f){
+                        int blockY;
+                        if(cam.transform.position.y > hitPoint.y){
+                            blockY = (int) Math.Floor(hitPoint.y) + 101;
+                        } else {
+                            blockY = (int) Math.Floor(hitPoint.y) + 100;
+                        }
                         float rawX = hitPoint.x + 0.5f;
                         float rawZ = hitPoint.z + 0.5f;
                         float rawY = hitPoint.y;
@@ -227,7 +233,6 @@ namespace Client
                         int blockZ = (int) Math.Round(hitPoint.z % 16);
                         blockZ = blockZ < 0 ? blockZ + 16 : blockZ;
                         blockX = blockX < 0 ? blockX + 16 : blockX;
-                        int blockY = (int) Math.Floor(hitPoint.y) + 101;
                         if(blockX > 15){
                             blockX = 15;
                         }
@@ -243,25 +248,29 @@ namespace Client
                         }
                     } else if(Math.Abs(hitPoint.z - Math.Truncate(hitPoint.z)) == 0.5f){
                         int blockZ;
+                        int chunkZ;
                         if(cam.transform.position.z > hitPoint.z){
                             blockZ = (int)Math.Round((hitPoint.z + 0.5f) % 16);
+                            chunkZ = (int)Math.Floor((hitPoint.z + 0.5f) / 16f);
                         } else {
                             blockZ = (int)Math.Round((hitPoint.z - 0.5f) % 16);
+                            chunkZ = (int)Math.Floor((hitPoint.z - 0.5f) / 16f);
                         }
                         print(hitPoint.x);
                         float rawX = hitPoint.x;
                         float rawZ = hitPoint.z;
                         float rawY = hitPoint.y;
                         int chunkX = (int)Math.Floor((hitPoint.x + 0.5f) / 16f);
-                        int chunkZ = (int)Math.Floor((hitPoint.z + 0.5f) / 16f);
                         int blockX = (int)Math.Round(hitPoint.x % 16);
                         blockZ = blockZ < 0 ? blockZ + 16 : blockZ;
                         blockX = blockX < 0 ? blockX + 16 : blockX;
                         int blockY = (int)Math.Floor(hitPoint.y+0.5f) + 100;
                         if(blockX > 15){
+                            print("error at z. blockx overflow");
                             blockX = 15;
                         }
                         if(blockZ > 15){
+                            print("error at z. blockz overflow");
                             blockZ = 15;
                         }
 
@@ -273,16 +282,18 @@ namespace Client
                         // }
                     } else if(Math.Abs(hitPoint.x - Math.Truncate(hitPoint.x)) == 0.5f){
                         int blockX;
+                        int chunkX;
                         if(cam.transform.position.x > hitPoint.x){
                             blockX = (int)Math.Round((hitPoint.x + 0.5f) % 16);
+                            chunkX = (int)Math.Floor((hitPoint.x + 0.5f) / 16f);
                         } else {
                             blockX = (int)Math.Round((hitPoint.x - 0.5f) % 16);
+                            chunkX = (int)Math.Floor((hitPoint.x - 0.5f) / 16f);
                         }
                         print(hitPoint.x);
                         float rawX = hitPoint.x;
                         float rawZ = hitPoint.z;
                         float rawY = hitPoint.y;
-                        int chunkX = (int)Math.Floor((hitPoint.x + 0.5f) / 16f);
                         int chunkZ = (int)Math.Floor((hitPoint.z + 0.5f) / 16f);
                         int blockZ = (int)Math.Round(hitPoint.z % 16);
                         blockZ = blockZ < 0 ? blockZ + 16 : blockZ;
@@ -321,12 +332,18 @@ namespace Client
                         breakTimeout -= Time.deltaTime;
                         return;
                     } else {
-                        breakTimeout = 0.05f;
+                        breakTimeout = 0.5f;
                     }
 
                     Vector3 hitPoint = hit.point;
                     
                     if(Math.Abs(hitPoint.y - Math.Truncate(hitPoint.y)) == 0.5f){
+                        int blockY;
+                        if(cam.transform.position.y > hitPoint.y){
+                            blockY = (int) Math.Floor(hitPoint.y) + 100;
+                        } else {
+                            blockY = (int) Math.Floor(hitPoint.y) + 101;
+                        }
                         float rawX = hitPoint.x + 0.5f;
                         float rawZ = hitPoint.z + 0.5f;
                         float rawY = hitPoint.y;
@@ -336,7 +353,6 @@ namespace Client
                         int blockZ = (int) Math.Round(hitPoint.z % 16);
                         blockZ = blockZ < 0 ? blockZ + 16 : blockZ;
                         blockX = blockX < 0 ? blockX + 16 : blockX;
-                        int blockY = (int) Math.Floor(hitPoint.y) + 100;
                         if(blockX > 15){
                             blockX = 15;
                         }
@@ -345,28 +361,27 @@ namespace Client
                         }
 
                         print(chunkX + " " + chunkZ + " " + blockX + " " + blockZ + " " + blockY + "% " + rawX + " " + rawZ + " " + rawY);
-                        Vector3 comparable = new Vector3((float)Math.Floor(transform.position.x + 0.5f), (float)Math.Floor(transform.position.y), (float)Math.Floor(transform.position.z + 0.5f));
-                        if(comparable != new Vector3(chunkX * 16 + blockX, blockY-100, chunkZ * 16 + blockZ)){
-                            Variables.BlockData[new Tuple<int, int>(chunkX, chunkZ)][blockX][blockZ][blockY] = null;
-                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX+1, chunkZ)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX-1, chunkZ)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ+1)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ-1)].GetComponent<Chunk>().updateMesh();
-                        }
+                        Variables.BlockData[new Tuple<int, int>(chunkX, chunkZ)][blockX][blockZ][blockY] = null;
+                        Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX+1, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX-1, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ+1)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ-1)].GetComponent<Chunk>().updateMesh();
                     } else if(Math.Abs(hitPoint.z - Math.Truncate(hitPoint.z)) == 0.5f){
                         int blockZ;
+                        int chunkZ;
                         if(cam.transform.position.z > hitPoint.z){
                             blockZ = (int)Math.Round((hitPoint.z - 0.5f) % 16);
+                            chunkZ = (int)Math.Floor((hitPoint.z - 0.5f) / 16f);
                         } else {
                             blockZ = (int)Math.Round((hitPoint.z + 0.5f) % 16);
+                            chunkZ = (int)Math.Floor((hitPoint.z + 0.5f) / 16f);
                         }
                         print(hitPoint.x);
                         float rawX = hitPoint.x;
                         float rawZ = hitPoint.z;
                         float rawY = hitPoint.y;
                         int chunkX = (int)Math.Floor((hitPoint.x + 0.5f) / 16f);
-                        int chunkZ = (int)Math.Floor((hitPoint.z + 0.5f) / 16f);
                         int blockX = (int)Math.Round(hitPoint.x % 16);
                         blockZ = blockZ < 0 ? blockZ + 16 : blockZ;
                         blockX = blockX < 0 ? blockX + 16 : blockX;
@@ -381,25 +396,27 @@ namespace Client
                         print(chunkX + " " + chunkZ + " " + blockX + " " + blockZ + " " + blockY + "% " + rawX + " " + rawZ + " " + rawY);
                         // Vector3 comparable = new Vector3((float)Math.Floor(transform.position.x + 0.5f), (float)Math.Floor(transform.position.y), (float)Math.Floor(transform.position.z + 0.5f));
                         // if(comparable != new Vector3(chunkX * 16 + blockX, blockY-100, chunkZ * 16 + blockZ)){
-                            Variables.BlockData[new Tuple<int, int>(chunkX, chunkZ)][blockX][blockZ][blockY] = null;
-                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX+1, chunkZ)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX-1, chunkZ)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ+1)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ-1)].GetComponent<Chunk>().updateMesh();
-                        // }
+                        Variables.BlockData[new Tuple<int, int>(chunkX, chunkZ)][blockX][blockZ][blockY] = null;
+                        Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX+1, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX-1, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ+1)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ-1)].GetComponent<Chunk>().updateMesh();
+                        
                     } else if(Math.Abs(hitPoint.x - Math.Truncate(hitPoint.x)) == 0.5f){
                         int blockX;
+                        int chunkX;
                         if(cam.transform.position.x > hitPoint.x){
+                            chunkX = (int)Math.Floor((hitPoint.x - 0.5f) / 16f);
                             blockX = (int)Math.Round((hitPoint.x - 0.5f) % 16);
                         } else {
+                            chunkX = (int)Math.Floor((hitPoint.x + 0.5f) / 16f);
                             blockX = (int)Math.Round((hitPoint.x + 0.5f) % 16);
                         }
                         print(hitPoint.x);
                         float rawX = hitPoint.x;
                         float rawZ = hitPoint.z;
                         float rawY = hitPoint.y;
-                        int chunkX = (int)Math.Floor((hitPoint.x + 0.5f) / 16f);
                         int chunkZ = (int)Math.Floor((hitPoint.z + 0.5f) / 16f);
                         int blockZ = (int)Math.Round(hitPoint.z % 16);
                         blockZ = blockZ < 0 ? blockZ + 16 : blockZ;
@@ -415,12 +432,12 @@ namespace Client
                         print(chunkX + " " + chunkZ + " " + blockX + " " + blockZ + " " + blockY + "% " + rawX + " " + rawZ + " " + rawY);
                         // Vector3 comparable = new Vector3((float)Math.Floor(transform.position.x + 0.5f), (float)Math.Floor(transform.position.y), (float)Math.Floor(transform.position.z + 0.5f));
                         // if(comparable != new Vector3(chunkX * 16 + blockX, blockY-100, chunkZ * 16 + blockZ)){
-                            Variables.BlockData[new Tuple<int, int>(chunkX, chunkZ)][blockX][blockZ][blockY] = null;
-                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX+1, chunkZ)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX-1, chunkZ)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ+1)].GetComponent<Chunk>().updateMesh();
-                            Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ-1)].GetComponent<Chunk>().updateMesh();
+                        Variables.BlockData[new Tuple<int, int>(chunkX, chunkZ)][blockX][blockZ][blockY] = null;
+                        Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX+1, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX-1, chunkZ)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ+1)].GetComponent<Chunk>().updateMesh();
+                        Variables.ChunkData[new Tuple<int, int>(chunkX, chunkZ-1)].GetComponent<Chunk>().updateMesh();
                         // }
                     }
                 }

@@ -5,6 +5,7 @@ using System.Threading;
 using System;
 using System.Text;
 using System.Runtime.CompilerServices;
+using UnityEditor;
 namespace Client
 {
     public class ConnectToHost
@@ -13,7 +14,6 @@ namespace Client
         NetworkStream stream;
         Thread thread;
         public static ConnectToHost instance;
-
         public ConnectToHost()
         {
             thread = new Thread(new ThreadStart(SetupClient));
@@ -31,7 +31,20 @@ namespace Client
                 Thread listenerThread = new Thread(new ThreadStart(ListenToData));
                 listenerThread.Start();
                 // SendMessageToHost("pn Hello");
-                SendMessageToHost("cw 12455879");
+                string seed = "";
+                if(Variables.seed == ""){
+                    Variables.seed = new System.Random().Next(0, 10000000).ToString();
+                }
+                for(int i = 0; i < Variables.seed.Length; i++){
+                    if(!char.IsLetterOrDigit(Variables.seed[i])){
+                    } else if(char.IsLetter(Variables.seed[i])){
+                        seed += Variables.seed[i]-0;
+                    } else {
+                        seed += Variables.seed[i];
+                    }
+                }
+                Variables.seed = seed;
+                SendMessageToHost("cw " + seed);
             } catch (Exception e){
                 Debug.Log("Error at client- " + e.ToString());
             }

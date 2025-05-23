@@ -125,6 +125,7 @@ namespace Client
 
         public static bool worldGenerated = false;
         public static bool isGrounded = false;
+        public static string seed = "";
     }
 
     public enum BlockType
